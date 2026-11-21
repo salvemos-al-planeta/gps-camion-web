@@ -3,48 +3,221 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GPS Camión Recolector</title>
+  <meta name="theme-color" content="#183D32">
+  <title>Recolección Sabinas | Seguimiento del camión</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    body { margin: 0; height: 100vh; display: flex; flex-direction: column;
-           font-family: Arial, sans-serif; }
-    header { background: #2e7d32; color: #fff; padding: 12px 16px; }
-    header h1 { margin: 0; font-size: 1.2rem; }
-    #info { padding: 8px 16px; background: #e8f5e9; font-size: 0.9rem; line-height: 1.6; }
-    #panel { padding: 8px 16px; background: #fff8e1; font-size: 0.9rem; line-height: 1.8; }
-    #panel button, #panel select { font-size: 0.9rem; padding: 4px 8px; }
-    #aviso { display: none; padding: 10px 16px; background: #ffeb3b; font-weight: bold; }
-    #mapa { flex: 1; }
-    .camion { font-size: 28px; background: none; border: none; }
-    .ok { color: #2e7d32; }
-    .sin-senal { color: #c62828; }
+    :root {
+      --verde-oscuro: #183D32;
+      --verde: #367A59;
+      --verde-suave: #A6C99A;
+      --fondo: #F4F6F3;
+      --texto: #28332F;
+      --texto-suave: #5E6B65;
+      --linea: #DDE3DF;
+      --blanco: #FFFFFF;
+      --alerta: #B3261E;
+      --aviso: #F3E7B3;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px; line-height: 1.45;
+      color: var(--texto); background: var(--fondo);
+    }
+
+    /* ---------- Encabezado ---------- */
+    .encabezado {
+      background: var(--verde-oscuro); color: var(--blanco);
+      height: 64px; padding: 0 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo {
+      width: 36px; height: 36px; flex: none;
+      border: 1.5px solid var(--verde-suave); border-radius: 6px;
+      display: grid; place-items: center; color: var(--verde-suave);
+    }
+    .logo svg { width: 22px; height: 22px; }
+    .titulo { font-size: 1.05rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+    .subtitulo { font-size: .8rem; color: var(--verde-suave); margin: 0; }
+
+    /* ---------- Estructura ---------- */
+    .principal {
+      display: grid; grid-template-columns: 1fr 380px;
+      height: calc(100vh - 64px);
+    }
+    .zona-mapa { position: relative; min-height: 0; }
+    #mapa { position: absolute; inset: 0; background: #E4E9E6; }
+    .lateral {
+      background: var(--blanco); border-left: 1px solid var(--linea);
+      overflow-y: auto; min-height: 0;
+    }
+
+    /* ---------- Secciones del panel ---------- */
+    .seccion { padding: 18px 20px; border-bottom: 1px solid var(--linea); }
+    .seccion:last-child { border-bottom: none; }
+    .seccion h2 {
+      display: flex; align-items: center; gap: 8px;
+      margin: 0 0 12px; font-size: .78rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--verde);
+    }
+    .ico { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
+           stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Estado */
+    #estado {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 1.1rem; font-weight: 600; color: var(--texto-suave);
+    }
+    #estado::before {
+      content: ""; width: 9px; height: 9px; border-radius: 50%;
+      background: var(--verde-suave);
+    }
+    #estado.ok { color: var(--verde); }
+    #estado.ok::before { background: var(--verde); }
+    #estado.sin-senal { color: var(--alerta); }
+    #estado.sin-senal::before { background: var(--alerta); }
+
+    .datos { margin: 12px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; }
+    .datos dt { color: var(--texto-suave); font-size: .85rem; }
+    .datos dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+    /* Mi ubicación */
+    .ayuda { margin: 0 0 12px; color: var(--texto-suave); font-size: .88rem; }
+    .fila { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .fila label { font-size: .88rem; color: var(--texto-suave); }
+    button, select, input {
+      font: inherit; font-size: .9rem; color: var(--texto);
+      border: 1px solid var(--linea); background: var(--blanco);
+      border-radius: 4px; padding: 7px 12px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--verde); }
+    button:focus-visible, select:focus-visible, input:focus-visible {
+      outline: 2px solid var(--verde); outline-offset: 1px;
+    }
+    .btn-principal { background: var(--verde-oscuro); color: var(--blanco); border-color: var(--verde-oscuro); }
+    .btn-principal:hover { background: var(--verde); border-color: var(--verde); }
+
+    .distancia { display: flex; align-items: baseline; justify-content: space-between;
+                 margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--linea); }
+    .distancia span { color: var(--texto-suave); font-size: .88rem; }
+    #dist { font-size: 1.5rem; font-weight: 600; color: var(--verde-oscuro); font-variant-numeric: tabular-nums; }
+
+    #aviso {
+      display: none; margin: 14px 0 0; padding: 10px 12px;
+      background: var(--aviso); border-left: 4px solid #B8962E;
+      font-weight: 600; font-size: .92rem;
+    }
+
+    /* Horarios */
+    #buscarHorario { width: 100%; margin-bottom: 10px; }
+    .tabla-contenedor { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th { text-align: left; font-weight: 600; color: var(--texto-suave); font-size: .78rem;
+         text-transform: uppercase; letter-spacing: .04em; }
+    th, td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--linea); vertical-align: top; }
+    #msgHorarios { color: var(--texto-suave); font-size: .88rem; margin: 0; }
+
+    /* Marcador del camión */
+    .camion { background: none; border: none; }
+    .camion .pin {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--verde-oscuro); border: 2px solid var(--blanco);
+      box-shadow: 0 1px 4px rgba(0,0,0,.35);
+      display: grid; place-items: center; color: var(--blanco);
+    }
+    .camion .pin svg { width: 20px; height: 20px; fill: none; stroke: currentColor;
+                       stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- Teléfonos ---------- */
+    @media (max-width: 900px) {
+      .encabezado { height: 56px; padding: 0 16px; }
+      .principal { display: block; height: auto; }
+      .zona-mapa { height: 58vh; min-height: 320px; }
+      .lateral { border-left: none; border-top: 1px solid var(--linea); overflow: visible; }
+      .seccion { padding: 16px; }
+    }
   </style>
 </head>
 <body>
-  <header><h1>🚛 GPS Camión Recolector</h1></header>
-  <div id="info">
-    Estado: <b id="estado">Conectando...</b><br>
-    Lat: <span id="lat">--</span> | Lng: <span id="lng">--</span><br>
-    Última actualización: <span id="hora">--</span>
-  </div>
-  <div id="panel">
-    <b>Mi ubicación:</b> toca el mapa o
-    <button id="btnGps">Usar mi ubicación</button><br>
-    Avisarme a
-    <select id="radio">
-      <option value="100">100 m</option>
-      <option value="200">200 m</option>
-      <option value="300">300 m</option>
-      <option value="500" selected>500 m</option>
-    </select>
-    <button id="btnNotif">Activar notificaciones</button><br>
-    Distancia al camión: <b id="dist">--</b>
-  </div>
-  <div id="aviso"></div>
-  <div id="mapa"></div>
+  <header class="encabezado">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" class="ico"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg>
+    </div>
+    <div>
+      <h1 class="titulo">Recolección Sabinas</h1>
+      <p class="subtitulo">Seguimiento del camión recolector · Sabinas, Coahuila</p>
+    </div>
+  </header>
+
+  <main class="principal">
+    <div class="zona-mapa">
+      <div id="mapa"></div>
+    </div>
+
+    <aside class="lateral">
+      <section class="seccion">
+        <h2>
+          <svg class="ico" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></svg>
+          Estado del camión
+        </h2>
+        <span id="estado">Conectando...</span>
+        <dl class="datos">
+          <dt>Latitud</dt><dd><span id="lat">--</span></dd>
+          <dt>Longitud</dt><dd><span id="lng">--</span></dd>
+          <dt>Actualizado</dt><dd><span id="hora">--</span></dd>
+        </dl>
+      </section>
+
+      <section class="seccion">
+        <h2>
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          Mi ubicación y aviso
+        </h2>
+        <p class="ayuda">Toca el mapa para marcar tu domicilio o usa tu ubicación actual.</p>
+        <div class="fila">
+          <button id="btnGps" class="btn-principal">Usar mi ubicación</button>
+        </div>
+        <div class="fila">
+          <label for="radio">Avisarme a</label>
+          <select id="radio">
+            <option value="100">100 m</option>
+            <option value="200">200 m</option>
+            <option value="300">300 m</option>
+            <option value="500" selected>500 m</option>
+          </select>
+          <button id="btnNotif">Activar notificaciones</button>
+        </div>
+        <div class="distancia">
+          <span>Distancia al camión</span>
+          <b id="dist">--</b>
+        </div>
+        <div id="aviso"></div>
+      </section>
+
+      <section class="seccion">
+        <h2>
+          <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Días y horarios de recolección
+        </h2>
+        <input id="buscarHorario" type="search" placeholder="Buscar colonia o ruta" hidden>
+        <p id="msgHorarios">Cargando horarios...</p>
+        <div class="tabla-contenedor">
+          <table id="tablaHorarios" hidden>
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // ================= LÓGICA ORIGINAL (sin cambios, salvo lo indicado) =================
+
     // ----- Configuración -----
     const URL_DB = "https://gps-camion-basura-default-rtdb.firebaseio.com/camion.json";
     const INTERVALO_MS = 10000;
@@ -58,7 +231,11 @@
       attribution: "&copy; OpenStreetMap"
     }).addTo(mapa);
 
-    const icono = L.divIcon({ html: "🚛", className: "camion", iconSize: [32, 32] });
+    // CAMBIO VISUAL: el emoji del camión se sustituye por un ícono SVG
+    const icono = L.divIcon({
+      html: '<div class="pin"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg></div>',
+      className: "camion", iconSize: [36, 36]
+    });
     let marcador = null;
     let posCamion = null;
 
@@ -77,7 +254,8 @@
       avisado = false;
       if (!miMarcador) {
         miMarcador = L.marker([lat, lng]).addTo(mapa);
-        circulo = L.circle([lat, lng], { radius: radioActual(), color: "#1565c0" }).addTo(mapa);
+        // CAMBIO VISUAL: color del círculo acorde a la paleta (antes #1565c0)
+        circulo = L.circle([lat, lng], { radius: radioActual(), color: "#367A59" }).addTo(mapa);
       } else {
         miMarcador.setLatLng([lat, lng]);
         circulo.setLatLng([lat, lng]);
@@ -127,7 +305,8 @@
 
       if (d <= r && !avisado) {
         avisado = true;
-        const msg = "🚛 El camión está a " + Math.round(d) + " m de tu ubicación";
+        // CAMBIO VISUAL: se quitó el emoji del texto del aviso
+        const msg = "El camión está a " + Math.round(d) + " m de tu ubicación";
         const av = document.getElementById("aviso");
         av.textContent = msg;
         av.style.display = "block";
@@ -190,6 +369,75 @@
 
     actualizar();
     setInterval(actualizar, INTERVALO_MS);
+
+    // ================= NUEVO: HORARIOS DESDE ARCHIVO CSV =================
+    // Se editan en Excel y se guardan como "horarios.csv". No requiere tocar el código.
+    const URL_HORARIOS = "horarios.csv";
+
+    function parseCSV(texto) {
+      texto = texto.replace(/^\uFEFF/, "");
+      const primera = texto.split(/\r?\n/)[0] || "";
+      const sep = primera.split(";").length > primera.split(",").length ? ";" : ",";
+      const filas = []; let fila = [], campo = "", comillas = false;
+      for (let i = 0; i < texto.length; i++) {
+        const c = texto[i];
+        if (comillas) {
+          if (c === '"' && texto[i + 1] === '"') { campo += '"'; i++; }
+          else if (c === '"') comillas = false;
+          else campo += c;
+        } else if (c === '"') comillas = true;
+        else if (c === sep) { fila.push(campo); campo = ""; }
+        else if (c === "\n" || c === "\r") {
+          if (c === "\r" && texto[i + 1] === "\n") i++;
+          fila.push(campo); campo = "";
+          if (fila.some(x => x.trim() !== "")) filas.push(fila);
+          fila = [];
+        } else campo += c;
+      }
+      fila.push(campo);
+      if (fila.some(x => x.trim() !== "")) filas.push(fila);
+      return filas;
+    }
+
+    function filtrarHorarios() {
+      const q = document.getElementById("buscarHorario").value.toLowerCase();
+      document.querySelectorAll("#tablaHorarios tbody tr").forEach(tr => {
+        tr.hidden = q !== "" && !tr.textContent.toLowerCase().includes(q);
+      });
+    }
+
+    async function cargarHorarios() {
+      const msg = document.getElementById("msgHorarios");
+      const tabla = document.getElementById("tablaHorarios");
+      try {
+        const r = await fetch(URL_HORARIOS, { cache: "no-store" });
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const filas = parseCSV(await r.text());
+        if (filas.length < 2) {
+          msg.textContent = "Horarios pendientes de verificar.";
+          return;
+        }
+        const thead = tabla.querySelector("thead"), tbody = tabla.querySelector("tbody");
+        thead.innerHTML = ""; tbody.innerHTML = "";
+        const trh = document.createElement("tr");
+        filas[0].forEach(t => { const th = document.createElement("th"); th.textContent = t.trim(); trh.appendChild(th); });
+        thead.appendChild(trh);
+        filas.slice(1).forEach(f => {
+          const tr = document.createElement("tr");
+          filas[0].forEach((_, i) => { const td = document.createElement("td"); td.textContent = (f[i] || "").trim(); tr.appendChild(td); });
+          tbody.appendChild(tr);
+        });
+        msg.hidden = true;
+        tabla.hidden = false;
+        const buscador = document.getElementById("buscarHorario");
+        buscador.hidden = false;
+        buscador.oninput = filtrarHorarios;
+      } catch (e) {
+        msg.textContent = "Horarios pendientes de verificar.";
+        console.error(e);
+      }
+    }
+    cargarHorarios();
   </script>
 </body>
 </html>
