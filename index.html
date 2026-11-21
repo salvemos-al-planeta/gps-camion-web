@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPS Camión Recolector</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    body { margin: 0; height: 100vh; display: flex; flex-direction: column;
+           font-family: Arial, sans-serif; }
+    header { background: #2e7d32; color: #fff; padding: 12px 16px; }
+    header h1 { margin: 0; font-size: 1.2rem; }
+    #info { padding: 8px 16px; background: #e8f5e9; font-size: 0.9rem; line-height: 1.6; }
+    #mapa { flex: 1; }
+    .camion { font-size: 28px; background: none; border: none; }
+    .ok { color: #2e7d32; }
+    .sin-senal { color: #c62828; }
+  </style>
+</head>
+<body>
+  <header><h1>🚛 GPS Camión Recolector</h1></header>
+  <div id="info">
+    Estado: <b id="estado">Conectando...</b><br>
+    Lat: <span id="lat">--</span> | Lng: <span id="lng">--</span><br>
+    Última actualización: <span id="hora">--</span>
+  </div>
+  <div id="mapa"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // ----- Configuración -----
+    const URL_DB = "https://gps-camion-basura-default-rtdb.firebaseio.com/camion.json";
+    const INTERVALO_MS = 10000;      // consulta cada 10 s (el máximo permitido es 30 s)
+    const LIMITE_SIN_SENAL_MS = 30000;
+
+    // ----- Mapa -----
+    const mapa = L.map("mapa").setView([25.4217, -101.0233], 16);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(mapa);
+
+    const icono = L.divIcon({ html: "🚛", className: "camion", iconSize: [32, 32] });
+    let marcador = null;
+
+    // ----- Control de si el camión sigue transmitiendo -----
+    let ultimoTs = null;
+    let momentoUltimoCambio = 0;
+
+    async function actualizar() {
+      const estado = document.getElementById("estado");
+      try {
+        const resp = await fetch(URL_DB, { cache: "no-store" });
+        const d = await resp.json();
+        if (!d || d.lat == null || d.lng == null) {
+          estado.textContent = "Sin datos";
+          estado.className = "sin-senal";
+          return;
+        }
+
+        // Mover o crear el marcador
+        if (!marcador) {
+          marcador = L.marker([d.lat, d.lng], { icon: icono }).addTo(mapa);
+          mapa.setView([d.lat, d.lng], 16);
+        } else {
+          marcador.setLatLng([d.lat, d.lng]);
+        }
+
+        document.getElementById("lat").textContent = Number(d.lat).toFixed(6);
+        document.getElementById("lng").textContent = Number(d.lng).toFixed(6);
+
+        // Si "ts" cambió, el camión está enviando datos nuevos
+        if (d.ts !== ultimoTs) {
+          ultimoTs = d.ts;
+          momentoUltimoCambio = Date.now();
+          document.getElementById("hora").textContent =
+            new Date().toLocaleTimeString("es-MX");
+        }
+
+        if (Date.now() - momentoUltimoCambio > LIMITE_SIN_SENAL_MS) {
+          estado.textContent = "Sin señal del camión";
+          estado.className = "sin-senal";
+        } else {
+          estado.textContent = "Transmitiendo";
+          estado.className = "ok";
+        }
+      } catch (e) {
+        estado.textContent = "Error de conexión";
+        estado.className = "sin-senal";
+        console.error(e);
+      }
+    }
+
+    actualizar();
+    setInterval(actualizar, INTERVALO_MS);
+  </script>
+</body>
+</html>
