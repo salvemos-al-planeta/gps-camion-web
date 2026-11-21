@@ -11,6 +11,9 @@
     header { background: #2e7d32; color: #fff; padding: 12px 16px; }
     header h1 { margin: 0; font-size: 1.2rem; }
     #info { padding: 8px 16px; background: #e8f5e9; font-size: 0.9rem; line-height: 1.6; }
+    #panel { padding: 8px 16px; background: #fff8e1; font-size: 0.9rem; line-height: 1.8; }
+    #panel button, #panel select { font-size: 0.9rem; padding: 4px 8px; }
+    #aviso { display: none; padding: 10px 16px; background: #ffeb3b; font-weight: bold; }
     #mapa { flex: 1; }
     .camion { font-size: 28px; background: none; border: none; }
     .ok { color: #2e7d32; }
@@ -24,14 +27,29 @@
     Lat: <span id="lat">--</span> | Lng: <span id="lng">--</span><br>
     Última actualización: <span id="hora">--</span>
   </div>
+  <div id="panel">
+    <b>Mi ubicación:</b> toca el mapa o
+    <button id="btnGps">Usar mi ubicación</button><br>
+    Avisarme a
+    <select id="radio">
+      <option value="100">100 m</option>
+      <option value="200">200 m</option>
+      <option value="300">300 m</option>
+      <option value="500" selected>500 m</option>
+    </select>
+    <button id="btnNotif">Activar notificaciones</button><br>
+    Distancia al camión: <b id="dist">--</b>
+  </div>
+  <div id="aviso"></div>
   <div id="mapa"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // ----- Configuración -----
     const URL_DB = "https://gps-camion-basura-default-rtdb.firebaseio.com/camion.json";
-    const INTERVALO_MS = 10000;      // consulta cada 10 s (el máximo permitido es 30 s)
+    const INTERVALO_MS = 10000;
     const LIMITE_SIN_SENAL_MS = 30000;
+    const HISTERESIS_M = 50;   // margen para volver a armar el aviso
 
     // ----- Mapa -----
     const mapa = L.map("mapa").setView([25.4217, -101.0233], 16);
@@ -42,8 +60,87 @@
 
     const icono = L.divIcon({ html: "🚛", className: "camion", iconSize: [32, 32] });
     let marcador = null;
+    let posCamion = null;
 
-    // ----- Control de si el camión sigue transmitiendo -----
+    // ----- Ubicación del ciudadano -----
+    let miMarcador = null;
+    let circulo = null;
+    let miPos = null;
+    let avisado = false;   // true = ya se avisó, no repetir
+
+    function radioActual() {
+      return Number(document.getElementById("radio").value);
+    }
+
+    function fijarMiPos(lat, lng) {
+      miPos = { lat, lng };
+      avisado = false;
+      if (!miMarcador) {
+        miMarcador = L.marker([lat, lng]).addTo(mapa);
+        circulo = L.circle([lat, lng], { radius: radioActual(), color: "#1565c0" }).addTo(mapa);
+      } else {
+        miMarcador.setLatLng([lat, lng]);
+        circulo.setLatLng([lat, lng]);
+      }
+      circulo.setRadius(radioActual());
+      revisarProximidad();
+    }
+
+    mapa.on("click", (e) => fijarMiPos(e.latlng.lat, e.latlng.lng));
+
+    document.getElementById("btnGps").onclick = () => {
+      if (!navigator.geolocation) { alert("Tu navegador no soporta geolocalización."); return; }
+      navigator.geolocation.getCurrentPosition(
+        (p) => { fijarMiPos(p.coords.latitude, p.coords.longitude);
+                 mapa.setView([p.coords.latitude, p.coords.longitude], 16); },
+        (err) => alert("No se pudo obtener tu ubicación: " + err.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    };
+
+    document.getElementById("radio").onchange = () => {
+      if (circulo) circulo.setRadius(radioActual());
+      avisado = false;
+      revisarProximidad();
+    };
+
+    document.getElementById("btnNotif").onclick = async () => {
+      if (!("Notification" in window)) { alert("Tu navegador no soporta notificaciones."); return; }
+      const r = await Notification.requestPermission();
+      alert("Permiso de notificaciones: " + r);
+    };
+
+    // ----- Distancia (Haversine) en metros -----
+    function distanciaM(lat1, lon1, lat2, lon2) {
+      const R = 6371000, rad = Math.PI / 180;
+      const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function revisarProximidad() {
+      if (!miPos || !posCamion) return;
+      const d = distanciaM(miPos.lat, miPos.lng, posCamion.lat, posCamion.lng);
+      document.getElementById("dist").textContent = Math.round(d) + " m";
+      const r = radioActual();
+
+      if (d <= r && !avisado) {
+        avisado = true;
+        const msg = "🚛 El camión está a " + Math.round(d) + " m de tu ubicación";
+        const av = document.getElementById("aviso");
+        av.textContent = msg;
+        av.style.display = "block";
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("Camión recolector cerca", { body: msg });
+        }
+      } else if (d > r + HISTERESIS_M && avisado) {
+        avisado = false;   // se alejó: se rearma para el siguiente paso
+        document.getElementById("aviso").style.display = "none";
+      }
+    }
+
+    // ----- Estado de transmisión -----
     let ultimoTs = null;
     let momentoUltimoCambio = 0;
 
@@ -58,7 +155,7 @@
           return;
         }
 
-        // Mover o crear el marcador
+        posCamion = { lat: Number(d.lat), lng: Number(d.lng) };
         if (!marcador) {
           marcador = L.marker([d.lat, d.lng], { icon: icono }).addTo(mapa);
           mapa.setView([d.lat, d.lng], 16);
@@ -69,7 +166,6 @@
         document.getElementById("lat").textContent = Number(d.lat).toFixed(6);
         document.getElementById("lng").textContent = Number(d.lng).toFixed(6);
 
-        // Si "ts" cambió, el camión está enviando datos nuevos
         if (d.ts !== ultimoTs) {
           ultimoTs = d.ts;
           momentoUltimoCambio = Date.now();
@@ -84,6 +180,7 @@
           estado.textContent = "Transmitiendo";
           estado.className = "ok";
         }
+        revisarProximidad();
       } catch (e) {
         estado.textContent = "Error de conexión";
         estado.className = "sin-senal";
