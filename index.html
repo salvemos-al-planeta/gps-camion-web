@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183D32">
+  <meta name="description" content="RECOLECTA+ muestra la ubicación del camión recolector de Sabinas, Coahuila.">
+  <title>RECOLECTA+ | Tecnología para una recolección más eficiente</title>
+  <link rel="stylesheet" href="landing.css">
+</head>
+<body>
+
+  <header class="cabecera">
+    <div class="contenedor">
+      <a class="marca" href="./" aria-label="RECOLECTA+, inicio">
+        <span class="marca-icono" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9h15v11H3z"/><path d="M18 13h5l4 4v3H18z"/><circle cx="9" cy="22" r="2.4"/><circle cx="22" cy="22" r="2.4"/><path d="M25 4v5M22.5 6.5h5"/>
+          </svg>
+        </span>
+        <span>
+          <span class="marca-nombre">RECOLECTA+</span>
+          <span class="marca-lema">Tecnología para una recolección más eficiente</span>
+        </span>
+      </a>
+
+      <!-- Logos institucionales: sube los archivos a la carpeta "assets" con estos nombres.
+           Mientras no existan, se muestra el nombre en texto. -->
+      <div class="instituciones">
+        <div class="inst">
+          <img src="assets/logo-itesrc.png" alt="ITESRC" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+          <span hidden>ITESRC</span>
+        </div>
+        <div class="inst">
+          <img src="assets/logo-tecnm.png" alt="Tecnológico Nacional de México" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+          <span hidden>Tecnológico Nacional de México</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="contenedor">
+        <div>
+          <h1>La recolección, más cerca de ti</h1>
+          <p>Conoce la ubicación del camión recolector y mantente informado sobre el servicio de recolección de residuos.</p>
+          <a class="boton" href="mapa.html">
+            Consultar ubicación del camión
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          </a>
+        </div>
+
+        <div class="escena-caja">
+          <svg class="escena" viewBox="0 0 640 420" role="img" aria-label="Ilustración de un camión recolector circulando por una calle, con un pin de ubicación GPS encima">
+            <!-- edificios -->
+            <g fill="#CFE0CF">
+              <rect x="20" y="170" width="90" height="170"/>
+              <rect x="125" y="120" width="70" height="220"/>
+              <rect x="420" y="140" width="80" height="200"/>
+              <rect x="515" y="190" width="105" height="150"/>
+            </g>
+            <g fill="#B7D2B8">
+              <rect x="205" y="200" width="95" height="140"/>
+              <rect x="320" y="165" width="85" height="175"/>
+            </g>
+            <g fill="#EAF2E6">
+              <rect x="36" y="190" width="14" height="16"/><rect x="62" y="190" width="14" height="16"/><rect x="88" y="190" width="14" height="16"/>
+              <rect x="36" y="224" width="14" height="16"/><rect x="62" y="224" width="14" height="16"/><rect x="88" y="224" width="14" height="16"/>
+              <rect x="36" y="258" width="14" height="16"/><rect x="62" y="258" width="14" height="16"/><rect x="88" y="258" width="14" height="16"/>
+              <rect x="140" y="140" width="14" height="16"/><rect x="166" y="140" width="14" height="16"/>
+              <rect x="140" y="174" width="14" height="16"/><rect x="166" y="174" width="14" height="16"/>
+              <rect x="140" y="208" width="14" height="16"/><rect x="166" y="208" width="14" height="16"/>
+              <rect x="436" y="160" width="14" height="16"/><rect x="462" y="160" width="14" height="16"/>
+              <rect x="436" y="194" width="14" height="16"/><rect x="462" y="194" width="14" height="16"/>
+              <rect x="436" y="228" width="14" height="16"/><rect x="462" y="228" width="14" height="16"/>
+              <rect x="530" y="210" width="14" height="16"/><rect x="556" y="210" width="14" height="16"/><rect x="582" y="210" width="14" height="16"/>
+              <rect x="220" y="220" width="14" height="16"/><rect x="246" y="220" width="14" height="16"/><rect x="272" y="220" width="14" height="16"/>
+              <rect x="334" y="185" width="14" height="16"/><rect x="360" y="185" width="14" height="16"/>
+            </g>
+            <!-- arbol -->
+            <rect x="303" y="296" width="6" height="44" fill="#367A59"/>
+            <circle cx="306" cy="286" r="22" fill="#6FA283"/>
+
+            <!-- calle -->
+            <rect x="0" y="338" width="640" height="82" fill="#183D32"/>
+            <rect x="0" y="334" width="640" height="6" fill="#A6C99A"/>
+            <g fill="#A6C99A">
+              <rect x="20" y="380" width="60" height="5" rx="2"/><rect x="120" y="380" width="60" height="5" rx="2"/>
+              <rect x="220" y="380" width="60" height="5" rx="2"/><rect x="320" y="380" width="60" height="5" rx="2"/>
+              <rect x="420" y="380" width="60" height="5" rx="2"/><rect x="520" y="380" width="60" height="5" rx="2"/>
+            </g>
+
+            <!-- ruta y pin GPS -->
+            <path d="M300 152 C300 190 300 200 300 214" stroke="#367A59" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round" fill="none"/>
+            <circle class="pulso" cx="300" cy="110" r="30" fill="#367A59" opacity=".35"/>
+            <path d="M300 152 C300 152 330 124 330 104 A30 30 0 1 0 270 104 C270 124 300 152 300 152 Z" fill="#183D32"/>
+            <circle cx="300" cy="104" r="11" fill="#A6C99A"/>
+
+            <!-- camion -->
+            <g class="camion">
+              <!-- tolva trasera -->
+              <path d="M96 252 H134 V330 H100 Q92 330 92 322 V262 Q92 252 96 252 Z" fill="#2B5E48"/>
+              <!-- caja -->
+              <rect x="128" y="222" width="220" height="108" rx="10" fill="#367A59"/>
+              <rect x="128" y="222" width="220" height="14" rx="7" fill="#2B5E48"/>
+              <!-- hoja -->
+              <circle cx="238" cy="282" r="30" fill="#EAF2E6"/>
+              <path d="M238 300 C222 290 224 268 246 262 C252 276 250 292 238 300 Z" fill="#367A59"/>
+              <path d="M238 300 C240 288 242 278 246 268" stroke="#EAF2E6" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- cabina -->
+              <path d="M348 236 H418 Q432 236 440 248 L462 286 Q466 294 466 302 V330 H348 Z" fill="#183D32"/>
+              <path d="M364 250 H414 Q420 250 424 256 L440 284 H364 Z" fill="#CFE0CF"/>
+              <rect x="452" y="304" width="14" height="10" rx="3" fill="#F3E7B3"/>
+              <rect x="348" y="322" width="118" height="10" fill="#0F2A22"/>
+              <!-- ruedas -->
+              <circle cx="190" cy="334" r="30" fill="#0F2A22"/><circle cx="190" cy="334" r="12" fill="#A6C99A"/>
+              <circle cx="410" cy="334" r="30" fill="#0F2A22"/><circle cx="410" cy="334" r="12" fill="#A6C99A"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion">
+      <div class="contenedor">
+        <h2>Un servicio más a la vista</h2>
+        <p class="seccion-intro">RECOLECTA+ reúne en un solo lugar lo que el ciudadano necesita saber sobre el camión recolector de Sabinas.</p>
+
+        <div class="caracteristicas">
+          <div class="caracteristica">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+            <h3>Seguimiento</h3>
+            <p>Consulta en el mapa la ubicación del camión recolector.</p>
+          </div>
+          <div class="caracteristica">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg></div>
+            <h3>Información ciudadana</h3>
+            <p>Facilita el acceso a información sobre el servicio de recolección.</p>
+          </div>
+          <div class="caracteristica">
+            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/><path d="M1.8 9a15 15 0 0 1 20.4 0"/></svg></div>
+            <h3>Tecnología</h3>
+            <p>Utiliza geolocalización y conectividad para compartir la información.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ambiental">
+      <div class="contenedor">
+        <div>
+          <h2>Una recolección más organizada</h2>
+          <p>Saber por dónde va el camión ayuda a que las familias saquen sus residuos a tiempo y a que el servicio cuente con mejor información para organizarse.</p>
+          <p>Una recolección más ordenada puede contribuir a que los residuos se manejen mejor y se aprovechen más. RECOLECTA+ es un proyecto académico alineado con los Objetivos de Desarrollo Sostenible:</p>
+        </div>
+        <ul class="ods">
+          <li>
+            <div class="num" aria-hidden="true"><div><small>ODS</small>9</div></div>
+            <div><strong>Industria, innovación e infraestructura</strong><span>Tecnología aplicada a un servicio público.</span></div>
+          </li>
+          <li>
+            <div class="num" aria-hidden="true"><div><small>ODS</small>11</div></div>
+            <div><strong>Ciudades y comunidades sostenibles</strong><span>Un servicio de limpieza más cercano a la comunidad.</span></div>
+          </li>
+          <li>
+            <div class="num" aria-hidden="true"><div><small>ODS</small>12</div></div>
+            <div><strong>Producción y consumo responsables</strong><span>Mejor manejo y aprovechamiento de los residuos.</span></div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <strong>RECOLECTA+</strong>
+      <p>Proyecto académico de Ingeniería en Mecatrónica</p>
+      <p>ITESRC</p>
+      <p>Sabinas, Coahuila</p>
+    </div>
+  </footer>
+
+</body>
+</html>
