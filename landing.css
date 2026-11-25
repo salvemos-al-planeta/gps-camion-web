@@ -2,155 +2,225 @@
    Archivo independiente: no afecta a la pagina del mapa (mapa.html). */
 
 :root {
-  --bosque: #183D32;
-  --verde: #367A59;
-  --verde-claro: #A6C99A;
-  --menta: #EAF2E6;
-  --fondo: #F7F9F5;
-  --texto: #28332F;
-  --texto-suave: #55645D;
-  --linea: #D9E2DB;
+  --bosque: #0B4A34;
+  --bosque-profundo: #08382A;
+  --hero-1: #3F7A62;
+  --hero-2: #5F917C;
+  --hero-3: #A8C3B3;
+  --hero-4: #EEF1EC;
+  --rojo: #D4161C;
+  --rojo-oscuro: #B01217;
+  --niebla: #F5F6F3;
+  --texto: #1D2B25;
+  --texto-suave: #4B5C54;
+  --linea: #DCE3DE;
   --blanco: #FFFFFF;
+  --fuente: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--fuente);
   font-size: 17px;
   line-height: 1.6;
   color: var(--texto);
-  background: var(--fondo);
+  background: var(--niebla);
 }
 img, svg { max-width: 100%; }
 a { color: inherit; }
+:focus-visible { outline: 3px solid var(--rojo); outline-offset: 3px; }
 
-:focus-visible { outline: 3px solid var(--verde); outline-offset: 3px; }
+.contenedor { width: min(1140px, 100% - 40px); margin-inline: auto; }
 
-.contenedor { width: min(1120px, 100% - 40px); margin-inline: auto; }
-
-/* ---------- Encabezado ---------- */
-.cabecera { background: var(--blanco); border-bottom: 1px solid var(--linea); }
-.cabecera .contenedor {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 24px; padding-block: 14px;
+/* ---------- Pildoras (botones) ---------- */
+.pildora {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 24px; border-radius: 999px;
+  font-weight: 600; font-size: 1rem; line-height: 1.2;
+  text-decoration: none; white-space: nowrap;
+  border: 2px solid transparent;
 }
-.marca { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-.marca-icono {
-  width: 42px; height: 42px; flex: none; border-radius: 10px;
-  background: var(--bosque); color: var(--verde-claro);
-  display: grid; place-items: center;
-}
-.marca-icono svg { width: 26px; height: 26px; }
-.marca-nombre { display: block; font-size: 1.3rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.1; color: var(--bosque); }
-.marca-lema { display: block; font-size: .85rem; color: var(--texto-suave); line-height: 1.3; }
-
-.instituciones { display: flex; align-items: center; gap: 22px; }
-.inst { display: flex; align-items: center; height: 46px; }
-.inst img { height: 46px; width: auto; display: block; }
-.inst [hidden] { display: none !important; }
-.inst span {
-  font-size: .85rem; font-weight: 600; color: var(--texto-suave);
-  border: 1.5px dashed var(--verde-claro); border-radius: 8px;
-  padding: 8px 12px; line-height: 1.2; max-width: 150px;
-}
+.pildora svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pildora-oscura { background: var(--bosque); color: var(--blanco); }
+.pildora-oscura:hover { background: var(--bosque-profundo); }
+.pildora-roja { background: var(--rojo); color: var(--blanco); }
+.pildora-roja:hover { background: var(--rojo-oscuro); }
+.pildora-clara { background: var(--blanco); color: var(--bosque); }
+.pildora-clara:hover { background: #E3EDE6; }
 
 /* ---------- Hero ---------- */
-.hero { background: var(--menta); overflow: hidden; }
-.hero .contenedor {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  align-items: center; gap: 40px; padding-block: 72px;
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 150px;
+  color: var(--blanco);
+  background: linear-gradient(180deg, var(--hero-1) 0%, var(--hero-2) 34%, var(--hero-3) 66%, var(--hero-4) 92%, var(--niebla) 100%);
 }
+
+/* Encabezado sobre el degradado */
+.cabecera { position: relative; z-index: 5; padding-top: 28px; }
+.cabecera-rejilla {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "marca utilidades"
+    "menu  menu";
+  align-items: center;
+  row-gap: 22px;
+}
+.marca { grid-area: marca; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; justify-self: start; }
+.marca-aro { width: 42px; height: 42px; flex: none; }
+.marca-texto { font-size: 1.7rem; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
+
+.utilidades { grid-area: utilidades; margin: 0; display: flex; gap: 18px; font-size: .95rem; font-weight: 500; color: rgba(255, 255, 255, .72); }
+
+.menu-boton { display: none; }
+.menu { grid-area: menu; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.nav { display: flex; gap: 20px; flex-wrap: wrap; }
+.nav a { text-decoration: none; font-weight: 500; font-size: .97rem; color: rgba(255, 255, 255, .92); }
+.nav a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.acciones { display: flex; gap: 10px; align-items: center; }
+
+/* Cuerpo del hero */
+.hero-cuerpo { position: relative; min-height: 600px; padding-top: 56px; }
 .hero h1 {
-  margin: 0 0 20px;
-  font-size: clamp(2.3rem, 5vw, 3.8rem);
-  line-height: 1.05; font-weight: 800; letter-spacing: -.03em;
-  color: var(--bosque);
+  position: relative; z-index: 3;
+  margin: 0 0 36px; max-width: 11.5em;
+  font-size: clamp(2.4rem, 6.6vw, 5.3rem);
+  font-weight: 700; line-height: 1.1; letter-spacing: -.01em;
+  text-transform: uppercase;
 }
-.hero p { margin: 0 0 32px; max-width: 34em; font-size: 1.15rem; color: var(--texto-suave); }
 
-.boton {
-  display: inline-flex; align-items: center; gap: 10px;
+.puntos { position: relative; z-index: 3; list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.puntos li {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 1.2rem; font-weight: 700; letter-spacing: .005em;
+  text-transform: uppercase; color: var(--bosque);
+}
+.puntos svg { width: 26px; height: 26px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Camion recortado, abajo a la derecha */
+.vehiculo {
+  position: absolute; z-index: 2;
+  right: -40px; bottom: -40px;
+  width: min(66%, 780px);
+  pointer-events: none;
+}
+.escena, .vehiculo-foto { display: block; width: 100%; height: auto; }
+.escena { overflow: visible; }
+.con-foto .escena { display: none; }
+
+.camion { animation: llegar 1.3s cubic-bezier(.2, .7, .2, 1) both; }
+.pulso { transform-box: fill-box; transform-origin: center; animation: pulso 2.6s ease-out 3; }
+@keyframes llegar { from { transform: translateX(-140px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes pulso { from { transform: scale(.5); opacity: .7; } to { transform: scale(1.7); opacity: 0; } }
+
+/* ---------- Tarjetas que montan sobre el hero ---------- */
+.servicio { position: relative; z-index: 4; margin-top: -96px; }
+.tarjetas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.tarjeta {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  padding: 30px 28px 28px;
   background: var(--bosque); color: var(--blanco);
-  font: inherit; font-weight: 700; font-size: 1.05rem;
-  padding: 16px 28px; border-radius: 10px; text-decoration: none;
-  border: 2px solid var(--bosque);
+  border-radius: 14px;
 }
-.boton:hover { background: var(--verde); border-color: var(--verde); }
-.boton svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tarjeta h2 { margin: 0; font-size: 1.55rem; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+.tarjeta p { margin: 0 0 12px; color: rgba(255, 255, 255, .85); font-size: 1rem; }
+.tarjeta .pildora { margin-top: auto; }
 
-.escena { width: 100%; height: auto; display: block; border-radius: 16px; }
-.camion { animation: llegar 1.4s cubic-bezier(.2, .7, .2, 1) both; }
-.pulso { transform-box: fill-box; transform-origin: center; animation: pulso 2.4s ease-out infinite; }
-@keyframes llegar { from { transform: translateX(-120px); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes pulso { from { transform: scale(.4); opacity: .8; } to { transform: scale(1.6); opacity: 0; } }
-
-/* ---------- Caracteristicas ---------- */
-.seccion { padding-block: 80px; }
-.seccion h2 {
-  margin: 0 0 12px; font-size: clamp(1.7rem, 3vw, 2.3rem);
-  line-height: 1.15; letter-spacing: -.02em; color: var(--bosque);
+/* ---------- Como ayuda ---------- */
+.ayuda { padding-block: 100px 96px; }
+.ayuda-rejilla { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+.ayuda h2 {
+  margin: 0 0 24px;
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  font-weight: 700; line-height: 1.12; letter-spacing: -.01em;
+  text-transform: uppercase; color: var(--bosque);
 }
-.seccion-intro { margin: 0 0 44px; max-width: 36em; color: var(--texto-suave); }
+.ayuda-texto p { margin: 0 0 16px; max-width: 34em; color: var(--texto-suave); }
+.ayuda-texto p:last-child { margin-bottom: 0; }
 
-.caracteristicas { display: grid; grid-template-columns: repeat(3, 1fr); }
-.caracteristica { padding: 4px 32px 4px 0; }
-.caracteristica + .caracteristica { padding-left: 32px; border-left: 1px solid var(--linea); }
-.caracteristica .ico {
-  width: 46px; height: 46px; margin-bottom: 18px; border-radius: 12px;
-  background: var(--menta); color: var(--verde);
-  display: grid; place-items: center;
-}
-.caracteristica .ico svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.caracteristica h3 { margin: 0 0 8px; font-size: 1.2rem; color: var(--bosque); }
-.caracteristica p { margin: 0; color: var(--texto-suave); }
-
-/* ---------- Ambiental ---------- */
-.ambiental { background: var(--bosque); color: var(--blanco); }
-.ambiental .contenedor {
-  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 56px; padding-block: 80px; align-items: start;
-}
-.ambiental h2 { margin: 0 0 16px; font-size: clamp(1.7rem, 3vw, 2.3rem); line-height: 1.15; letter-spacing: -.02em; color: var(--blanco); }
-.ambiental p { margin: 0 0 16px; color: #D4E4D6; max-width: 34em; }
-.ambiental p:last-child { margin-bottom: 0; }
-
-.ods { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.ods { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
 .ods li {
-  display: grid; grid-template-columns: 64px 1fr; gap: 18px; align-items: center;
-  padding: 16px 18px; border: 1px solid rgba(166, 201, 154, .35); border-radius: 12px;
+  display: grid; grid-template-columns: 76px 1fr; gap: 20px; align-items: center;
+  padding: 16px 20px 16px 16px;
+  background: var(--blanco); border-radius: 14px;
 }
-.ods .num {
-  width: 64px; height: 64px; border-radius: 12px; background: var(--verde-claro); color: var(--bosque);
-  display: grid; place-items: center; text-align: center; line-height: 1;
-  font-weight: 800; font-size: 1.7rem;
+.ods-num {
+  width: 76px; height: 76px; border-radius: 10px;
+  display: grid; place-content: center; text-align: center; line-height: 1;
+  font-weight: 800; font-size: 2rem; color: var(--blanco);
 }
-.ods .num small { display: block; font-size: .62rem; font-weight: 700; letter-spacing: .04em; margin-bottom: 3px; }
-.ods strong { display: block; font-size: 1.05rem; }
-.ods span { font-size: .92rem; color: #C2D8C5; }
+.ods-num small { display: block; margin-bottom: 4px; font-size: .68rem; font-weight: 700; }
+.ods-9 .ods-num { background: #F36D25; }
+.ods-11 .ods-num { background: #F99D26; color: #3A2400; }
+.ods-12 .ods-num { background: #BF8B2E; }
+.ods strong { display: block; font-size: 1.02rem; line-height: 1.3; color: var(--bosque); }
+.ods span { display: block; margin-top: 2px; font-size: .92rem; color: var(--texto-suave); }
 
 /* ---------- Pie ---------- */
-.pie { background: var(--blanco); border-top: 1px solid var(--linea); }
-.pie .contenedor { padding-block: 36px; display: flex; flex-wrap: wrap; gap: 12px 40px; justify-content: space-between; align-items: center; }
-.pie strong { font-size: 1.15rem; color: var(--bosque); }
-.pie p { margin: 0; font-size: .95rem; color: var(--texto-suave); }
+.pie { background: var(--bosque); color: var(--blanco); }
+.pie-rejilla { display: flex; flex-wrap: wrap; gap: 28px 48px; justify-content: space-between; align-items: center; padding-block: 44px; }
+.pie-texto strong { display: block; margin-bottom: 6px; font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
+.pie-texto p { margin: 0; font-size: .95rem; color: rgba(255, 255, 255, .78); }
 
-/* ---------- Tabletas y celulares ---------- */
-@media (max-width: 860px) {
-  .hero .contenedor { grid-template-columns: 1fr; padding-block: 48px; gap: 28px; }
-  .hero .escena-caja { order: -1; }
-  .caracteristicas { grid-template-columns: 1fr; gap: 32px; }
-  .caracteristica, .caracteristica + .caracteristica { padding: 0; border-left: 0; }
-  .caracteristica + .caracteristica { padding-top: 32px; border-top: 1px solid var(--linea); }
-  .ambiental .contenedor { grid-template-columns: 1fr; gap: 36px; padding-block: 56px; }
-  .seccion { padding-block: 56px; }
+.instituciones { display: flex; align-items: center; gap: 28px; padding: 14px 26px; background: var(--blanco); border-radius: 14px; }
+.instituciones img { display: block; width: auto; }
+.logo-itesrc { height: 58px; }
+.logo-tecnm { height: 44px; }
+
+/* ---------- Tabletas ---------- */
+@media (max-width: 980px) {
+  .vehiculo { width: 72%; right: -50px; bottom: -34px; }
+  .tarjetas { gap: 18px; }
+  .tarjeta { padding: 26px 22px 24px; }
+  .tarjeta h2 { font-size: 1.35rem; }
 }
-@media (max-width: 600px) {
+
+/* ---------- Celulares y tabletas chicas ---------- */
+@media (max-width: 860px) {
+  .hero { padding-bottom: 120px; }
+
+  .cabecera-rejilla {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "marca boton"
+      "menu  menu";
+    row-gap: 0;
+  }
+  .utilidades { display: none; }
+  .menu-boton {
+    grid-area: boton; display: inline-block;
+    padding: 10px 20px; border-radius: 999px;
+    border: 2px solid var(--blanco); background: transparent; color: var(--blanco);
+    font: inherit; font-weight: 600; font-size: .95rem; cursor: pointer;
+  }
+  .menu { display: none; flex-direction: column; align-items: stretch; gap: 20px; padding-block: 22px 6px; }
+  .cabecera.abierto .menu { display: flex; }
+  .nav { flex-direction: column; gap: 14px; }
+  .nav a { font-size: 1.05rem; }
+  .acciones { flex-wrap: wrap; }
+
+  .hero-cuerpo { min-height: 0; padding-top: 36px; padding-bottom: 300px; }
+  .hero h1 { margin-bottom: 26px; }
+  .puntos li { font-size: 1.02rem; }
+  .vehiculo { width: 108%; right: -8%; bottom: -30px; }
+
+  .servicio { margin-top: -84px; }
+  .tarjetas { grid-template-columns: 1fr; }
+  .ayuda { padding-block: 64px; }
+  .ayuda-rejilla { grid-template-columns: 1fr; gap: 36px; }
+}
+
+@media (max-width: 480px) {
   body { font-size: 16px; }
-  .cabecera .contenedor { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .inst, .inst img { height: 38px; }
-  .boton { width: 100%; justify-content: center; }
+  .marca-texto { font-size: 1.5rem; }
+  .acciones .pildora { padding: 12px 18px; font-size: .95rem; }
+  .instituciones { padding: 12px 18px; gap: 18px; }
+  .logo-itesrc { height: 48px; }
+  .logo-tecnm { height: 34px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
